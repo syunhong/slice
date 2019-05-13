@@ -8,3 +8,5 @@ people <- list(p1 = list(info = list(), trip = data.frame()),
 
 test <- activity(people)
 
+# Print the 'test' object
+test
