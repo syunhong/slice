@@ -3,7 +3,8 @@
 #
 # Author: Seong-Yun Hong <hong.seongyun@gmail.com>
 # ------------------------------------------------------------------------------
-setClass("Personal", slots = c(id = "character", famrel = "numeric", 
+setClass("Personal", slots = c(hid = "character", pid = "numeric", 
+                               famrel = "numeric", 
                                yrborn = "numeric", sex = "numeric", 
                                area = "character", income = "numeric", 
                                occ = "numeric", emp = "numeric", 
@@ -12,16 +13,22 @@ setClass("Personal", slots = c(id = "character", famrel = "numeric",
                                tstn = "numeric", tbst = "numeric"))
 
 setMethod("initialize", "Personal", 
-          function(.Object, id, famrel, yrborn, sex, area, income, occ, emp,
-                   hhsize, dutype, haslic, hascar, tstn, tbst, ...) {
+          function(.Object, hid, pid, famrel, yrborn, sex, area, income, occ, 
+                   emp, hhsize, dutype, haslic, hascar, tstn, tbst, ...) {
             
             .Object <- callNextMethod(.Object, ...)
             
-            # [[1]] Person ID
-            if (missing(id))
-              .Object@id <- character()
+            # [[1-1]] Household ID
+            if (missing(hid))
+              .Object@hid <- character()
             else
-              .Object@id <- id
+              .Object@hid <- hid
+            
+            # [[1-2]] Personal ID
+            if (missing(pid))
+              .Object@pid <- numeric()
+            else
+              .Object@pid <- pid
             
             # [[2]] Relationship to family
             # https://cps.ipums.org/cps-action/variables/FAMREL#codes_section
@@ -107,17 +114,17 @@ setMethod("initialize", "Personal",
 
 validityPersonal <- function(object) {
   
-  if (object@yrborn <= 0)
+  if (object@yrborn < 0)
     paste("'yrborn' must be greater than 0")
-  else if (object@hhsize <= 0)
+  else if (object@hhsize < 0)
     paste("'hhsize' must be greater than 0")
   else if (!is.logical(object@haslic))
     paste("'haslic' must be logical")
   else if (!is.logical(object@hascar))
     paste("'hascar' must be logical")
-  else if (object@tstn <= 0)
+  else if (object@tstn < 0)
     paste("'tstn' must be greater than 0")
-  else if (object@tbst <= 0)
+  else if (object@tbst < 0)
     paste("'tbst' must be greater than 0")
   else
     TRUE
