@@ -29,7 +29,7 @@
 .filter <- function(result, purpose){
   if(is.na(result$purpose)){
     return(NA)
-  } else if(result$purpose == purpose){
+  } else if(result$purpose %in% purpose){
     return(result$purpose)
   } else {
     return(NA)
