@@ -130,6 +130,10 @@ validityPersonal <- function(object) {
     TRUE
 }
 
+validityPersonal <- function(object) {
+  TRUE
+}
+
 setValidity("Personal", validityPersonal)
 
 
