@@ -14,109 +14,107 @@ slice <- function(data, at, purpose, stay = TRUE) {
   return(output)
 }
 
-
 ## slice.person()
 slice.person.t <- function(person, at) {
   
-  x <- .extract(person, "individual")
-  y <- .extract(person, "household")
-  z <- .extract(person, "trips")
+  x <- .extract(person, "info")
+  z <- .extract(person, "trip")
   z <- .expand(z)
   z <- .locate(z, at)
   
-  cbind(x, y, z)
+  cbind(x, z)
 }
 
 
-##.extract()
+##.extract() fixed
 
-.extract <- function(person, type = "household"){
+.extract <- function(person, type = "info"){
   output <- NULL
   
-  if (type == "household") {
-    df <- person$household
-    output <- data.frame(income = df$income[1],
-                         housing = df$houseType[1],
-                         size = df$familySize[1],
-                         vehicle = df$hasCar[1],
-                         subway = df$timeStation[1],
-                         bus = df$timeBusStop[1])
-  } else if (type == "individual") {
-    df <- person$individual
-    output <- data.frame(status = df$status[1],
-                         birth = df$birth[1],
-                         sex = df$sex[1],
-                         occupation = df$occupation[1],
-                         employment = df$workingHour[1],
-                         workingday = df$workingDays[1],
-                         license = df$hasLicense[1])
-  } else if (type == "trips") {
-    df <- person$trips
-    output <- data.frame(from = df$o.time,
-                         to = df$d.time,
-                         oID = df$o.adminID,
-                         oType = df$o.type,
-                         dID = df$d.adminID,
-                         dType = df$d.type,
-                         purpose = df$purpose,
-                         mode = df$mode,
-                         with = df$with,
+  if (type == "info") {
+    infolist <- slot(person, "info")
+    output <- data.frame(hid = slot(infolist, "hid"),
+                         pid = slot(infolist, "pid"),
+                         famrel = slot(infolist, "famrel"),
+                         yrborn = slot(infolist, "yrborn"),
+                         sex = slot(infolist, "sex"),
+                         area = slot(infolist, "area"),
+                         income = slot(infolist, "income"),
+                         occ = slot(infolist, "occ"),
+                         emp = slot(infolist, "emp"),
+                         hhsize = slot(infolist, "hhsize"),
+                         dutype = slot(infolist, "dutype"),
+                         haslic = slot(infolist, "haslic"),
+                         hascar = slot(infolist, "hascar"),
+                         tstn = slot(infolist, "tstn"),
+                         tbst = slot(infolist, "tbst"))
+  } else if (type == "trip") {
+    triplist <- slot(person, "trip")
+    output <- data.frame(tr_seq = triplist$tr_seq,
+                         purpose = triplist$purpose,
+                         mode = triplist$mode,
+                         o_type = triplist$o_type,
+                         o_time = triplist$o_time,
+                         o_zone = triplist$o_zone,
+                         d_type = triplist$d_type,
+                         d_time = triplist$d_time,
+                         d_zone = triplist$d_zone,
                          stay = 0)
   }
   
   return(output)
 }
 
-## .expand()
+## .expand() fixed
 
 .expand <- function(trip) {
   
   if(nrow(trip) > 1) {
-    trip <- trip[order(trip$from),]
+    trip <- trip[order(trip$o_time),]
     
-    last <- length(trip$from)
+    last <- length(trip$o_time)
     i1 <- 1:(last - 1)
     i2 <- i1 + 1
     
-    INDEX <- which(trip$from[i2] != trip$to[i1])
+    INDEX <- which(trip$o_time[i2] != trip$d_time[i1])
     
     if (length(INDEX) > 0) {
-      output <- list(from = trip$to[INDEX],
-                     to = trip$from[INDEX + 1],
-                     oID = trip$dID[INDEX], oType = trip$dType[INDEX],
-                     dID = trip$dID[INDEX], dType = trip$dType[INDEX],
-                     purpose = trip$purpose[INDEX], ## 지역에 머무는 동안의 목적
-                     mode = rep(NA, length(INDEX)),
-                     with = rep(NA, length(INDEX)),
-                     stay = 1)
+      output <- data.frame(tr_seq = 1:length(INDEX),
+                           purpose = trip$purpose[INDEX],
+                           mode = rep(NA, length(INDEX)),
+                           o_type = trip$d_type[INDEX],
+                           o_time = as.numeric(trip$d_time)[INDEX],
+                           o_zone = trip$d_zone[INDEX],
+                           d_type = trip$d_type[INDEX],
+                           d_time = as.numeric(trip$o_time)[INDEX + 1],
+                           d_zone = trip$d_zone[INDEX],
+                           stay = 1)
+      
       
       output <- rbind(trip, as.data.frame(output))
-      output <- output[order(output$from),]
+      output <- output[order(output$o_time),]
       rownames(output) <- 1:nrow(output)
       
       trip <- output
     } 
   }
-  if(is.na(trip$dID[1]) == FALSE) {
-  final <- length(trip$to)
-  output2 <- list(from = trip$to[final],
-                  to = trip$from[1],
-                  oID = trip$dID[final], 
-                  oType = trip$dType[final],
-                  dID = trip$dID[final], 
-                  dType = trip$dType[final],
-                  purpose = trip$purpose[final],
-                  mode = NA,
-                  with = NA,
-                  stay = 1)
-  if(output2$dType != 1){
-    output2$stay <- 2
-    output2$purpose <- NA
-  }
-  trip <- rbind(trip, as.data.frame(output2))
-
-  rownames(trip) <- 1:nrow(trip)
-  return(trip)
+  if(is.na(trip$d_zone[1]) == FALSE) {
+    final <- length(trip$d_time)
+    output2 <- data.frame(tr_seq = length(INDEX) + 1,
+                          purpose = trip$purpose[final],
+                          mode = rep(NA, length(final)),
+                          o_type = trip$d_type[final],
+                          o_time = as.numeric(trip$d_time)[final],
+                          o_zone = trip$d_zone[final],
+                          d_type = trip$d_type[final],
+                          d_time = as.numeric(trip$o_time)[final],
+                          d_zone = trip$d_zone[final],
+                          stay = 1)
+    
+    trip <- rbind(trip, as.data.frame(output2))
+    
+    rownames(trip) <- 1:nrow(trip)
+    return(trip)
   } else {
     return(trip)
   }
@@ -128,21 +126,21 @@ slice.person.t <- function(person, at) {
 .locate <- function(trip, at) {
   
   last <- nrow(trip)
-
   
-  if(is.na(trip$from[1])) {
+  
+  if(is.na(trip$o_time[1])) {
     output <- data.frame(from = 0, to = 2359,
                          oID = NA, oType = 1,
                          dID = NA, dType = 1,
                          purpose = NA, mode = NA, with = NA, stay = NA)
   }
   
-  else if (at < trip$from[1] | at >= trip$to[last-1]) {
+  else if (at < trip$o_time[1] | at >= trip$d_time[last-1]) {
     output <- trip[last-1,]
   }
   
   else {
-    INDEX <- which((at >= trip$from) & (at < trip$to))
+    INDEX <- which((at >= trip$o_time) & (at < trip$d_time))
     if (length(INDEX) == 0)
       stop("There is nothing at the given moment")
     else if (length(INDEX) > 1)
@@ -153,6 +151,7 @@ slice.person.t <- function(person, at) {
   
   return(output)
 }
+
 
 
 
