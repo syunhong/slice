@@ -2,9 +2,10 @@
 
 slice <- function(data, at, purpose, stay = TRUE) {
   if(missing(purpose)){ ## 시간만 주어진 경우
-  output <- lapply(data, function(z) slice.person.t(z, at))
+    output <- lapply(data@people, function(z) slice.person.t(z, at, purpose))
+    
   } else if(missing(at)){ ## 목적만 주어진 경우
-    output <- lapply(data, function(z) slice.person.p(z, purpose, stay))
+    output <- lapply(data, function(z) slice.person.t(z, purpose, stay))
     output <- .exclude(output)
     return(output)
   } else { ## 시간 목적 둘다 주어진 경우
@@ -15,14 +16,14 @@ slice <- function(data, at, purpose, stay = TRUE) {
 }
 
 ## slice.person()
-slice.person.t <- function(person, at) {
+slice.person.t <- function(person, at, purpose) {
   
   x <- .extract(person, "info")
-  z <- .extract(person, "trip")
-  z <- .expand(z)
-  z <- .locate(z, at)
+  y <- .extract(person, "trip")
+  y <- .expand(y)
+  y <- .locate(y, at)
   
-  cbind(x, z)
+  cbind(x, y)
 }
 
 
@@ -50,25 +51,25 @@ slice.person.t <- function(person, at) {
                          tbst = slot(infolist, "tbst"))
   } else if (type == "trip") {
     triplist <- slot(person, "trip")
-    output <- data.frame(tr_seq = triplist$tr_seq,
+    output <- data.frame(tr_seq = as.character(triplist$tr_seq),
                          purpose = triplist$purpose,
                          mode = triplist$mode,
                          o_type = triplist$o_type,
-                         o_time = triplist$o_time,
+                         o_time = as.numeric(as.character(triplist$o_time)),
                          o_zone = triplist$o_zone,
                          d_type = triplist$d_type,
-                         d_time = triplist$d_time,
+                         d_time = as.numeric(as.character(triplist$d_time)),
                          d_zone = triplist$d_zone,
-                         stay = 0)
+                         stay = 0,
+                         stringsAsFactors = FALSE)
   }
   
   return(output)
 }
 
 ## .expand() fixed
-
+trip <- y
 .expand <- function(trip) {
-  
   if(nrow(trip) > 1) {
     trip <- trip[order(trip$o_time),]
     
@@ -100,7 +101,7 @@ slice.person.t <- function(person, at) {
   }
   if(is.na(trip$d_zone[1]) == FALSE) {
     final <- length(trip$d_time)
-    output2 <- data.frame(tr_seq = length(INDEX) + 1,
+    output2 <- data.frame(tr_seq = final,
                           purpose = trip$purpose[final],
                           mode = rep(NA, length(final)),
                           o_type = trip$d_type[final],
