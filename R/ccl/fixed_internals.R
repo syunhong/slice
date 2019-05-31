@@ -1,27 +1,8 @@
-#slice()
-
-slice <- function(data, at, attr = c("hid", "pid")) {
-  output <- lapply(slot(data, "people"), function(z) slice.person(z, at))
-  df.output <- do.call(rbind.data.frame, output)
-  if("trip" %in% attr){
-    attrfixed <- c(attr, names(data@people[[1]]@trip), "stay")
-    attrfixed <- attrfixed[!attrfixed == "trip"]
-  }
-  df.output <- df.output[order(as.numeric(rownames(df.output))), 
-                         c("area", attrfixed)]
-  return(df.output)
-}
-## slice.person()
-slice.person <- function(person, at) {
-  
-  x <- .extract(person, "info")
-  y <- .extract(person, "trip")
-  y <- .expand(y)
-  y <- .locate(y, at)
-  
-  cbind(x, y)
-}
-
+# ------------------------------------------------------------------------------
+# slice() fixed
+#
+# Date : 2019.05.31
+# ------------------------------------------------------------------------------
 
 ##.extract() fixed
 
@@ -146,4 +127,3 @@ slice.person <- function(person, at) {
   
   return(output)
 }
-
