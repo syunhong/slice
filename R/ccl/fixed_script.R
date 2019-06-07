@@ -1,14 +1,25 @@
 #slice()
 
 slice <- function(data, at, attr = c("hid", "pid")) {
+<<<<<<< HEAD
+  
   output <- lapply(slot(data, "people"), function(z) slice.person(z, at))
   df.output <- do.call(rbind.data.frame, output)
+  attrfixed <- attr
+=======
+  output <- lapply(slot(data, "people"), function(z) slice.person(z, at))
+  df.output <- do.call(rbind.data.frame, output)
+>>>>>>> e68c4cdf5aa120166fc566ef532501708151ee6e
   if("trip" %in% attr){
     attrfixed <- c(attr, names(data@people[[1]]@trip), "stay")
     attrfixed <- attrfixed[!attrfixed == "trip"]
   }
   df.output <- df.output[order(as.numeric(rownames(df.output))), 
                          c("area", attrfixed)]
+<<<<<<< HEAD
+  df.output[, 1] <- .transh(df.output[, 1])
+=======
+>>>>>>> e68c4cdf5aa120166fc566ef532501708151ee6e
   return(df.output)
 }
 ## slice.person()
@@ -47,6 +58,11 @@ slice.person <- function(person, at) {
                          tbst = slot(infolist, "tbst"))
   } else if (type == "trip") {
     triplist <- slot(person, "trip")
+    if(nrow(triplist) == 0){
+      triplist <- data.frame(tr_seq = NA, purpose = NA, mode = NA,
+                             o_type = NA, o_time = NA, o_zone = NA,
+                             d_type = NA, d_time = NA, d_zone = NA, stay = 0)
+    }
     output <- data.frame(tr_seq = as.character(triplist$tr_seq),
                          purpose = triplist$purpose,
                          mode = triplist$mode,
@@ -126,7 +142,11 @@ slice.person <- function(person, at) {
   
   if(is.na(trip$o_time[1])) {
     output <- data.frame(tr_seq = 0, purpose = NA, mode = NA, o_type = 1,
+<<<<<<< HEAD
+                         o_time = 0, o_zone = NA, d_type = 1, d_time = 2359,
+=======
                          o_time = 0, o_zone = NA, d_type = 1, d_time = 0,
+>>>>>>> e68c4cdf5aa120166fc566ef532501708151ee6e
                          d_zone = NA, stay = 1)
   }
   
@@ -147,3 +167,40 @@ slice.person <- function(person, at) {
   return(output)
 }
 
+<<<<<<< HEAD
+
+## .transh() by myunghoon
+
+.transh <- function(number) {
+  number <- gsub("-", "", number)
+  tong <- NULL
+  for(i in 1:length(number)){
+    a <- as.character(number[i])
+    n <- nchar(a)
+    if(n == 8){
+      if(a %in% gatong$분류코드){
+        b <- subset(gatong, gatong[, 4] == a)
+        c <- b[,6] 
+      }else{
+        print("잘못 입력하셨습니다.")
+      }
+    }else if(n == 10){
+      if(a %in% bjd[, 8]){
+        b <- subset(bjd, bjd[, 8] == a)
+        c <- b[, 6] 
+      }else if(a %in% bjd[, 7]){
+        b <- subset(bjd, bjd[, 7] == a)
+        c <- b[1, 6] 
+      }else{
+        print("잘못 입력하셨습니다.")
+      }
+    }else{
+      print("잘못 입력하셨습니다.")
+    }
+    tong <- rbind(tong, c)
+  }
+  return(tong)
+}
+
+=======
+>>>>>>> e68c4cdf5aa120166fc566ef532501708151ee6e
