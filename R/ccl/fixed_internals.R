@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # slice() fixed
 #
-# Date : 2019.05.31
+# Date : 2019.06.07
 # ------------------------------------------------------------------------------
 
 ##.extract() fixed
@@ -28,6 +28,11 @@
                          tbst = slot(infolist, "tbst"))
   } else if (type == "trip") {
     triplist <- slot(person, "trip")
+    if(nrow(triplist) == 0){
+      triplist <- data.frame(tr_seq = NA, purpose = NA, mode = NA,
+                             o_type = NA, o_time = NA, o_zone = NA,
+                             d_type = NA, d_time = NA, d_zone = NA, stay = 0)
+    }
     output <- data.frame(tr_seq = as.character(triplist$tr_seq),
                          purpose = triplist$purpose,
                          mode = triplist$mode,
@@ -107,7 +112,7 @@
   
   if(is.na(trip$o_time[1])) {
     output <- data.frame(tr_seq = 0, purpose = NA, mode = NA, o_type = 1,
-                         o_time = 0, o_zone = NA, d_type = 1, d_time = 0,
+                         o_time = 0, o_zone = NA, d_type = 1, d_time = 2359,
                          d_zone = NA, stay = 1)
   }
   
@@ -127,3 +132,76 @@
   
   return(output)
 }
+
+## .exclude()
+
+.exclude <- function(person, status){
+  n_person <- person
+  infoindex <- NULL
+  tripindex <- NULL
+  info <- slot(person, "info")
+  trip <- slot(person, "trip")
+  
+  for(i in 1:length(status)){
+    if(names(status)[i] %in% slotNames(info)){
+      index <- slot(info, names(status)[i]) == status[[i]]
+      infoindex <- rbind(infoindex, index)
+    } else if(names(status)[i] %in% names(trip)){
+      index <- with(trip, eval(parse(text = names(status[i]))) == status[[i]])
+      tripindex <- rbind(tripindex, index)
+    }
+  }
+  
+  if (FALSE %in% infoindex){
+    n_person <- NA
+    return(n_person)
+    break
+  }
+  
+  f_tripindex <- NULL
+  if(length(tripindex) != 0){
+    for(i in 1:ncol(tripindex)){
+      if(FALSE %in% tripindex[, i]){
+        f_tripindex[i] <- FALSE
+      } else {
+        f_tripindex[i] <- TRUE
+      }
+    }
+    slot(n_person, "trip") <- slot(person, "trip")[f_tripindex, ]
+  }
+  return(n_person)
+}
+
+## .transh() by myunghoon
+
+.transh <- function(number) {
+  number <- gsub("-", "", number)
+  tong <- NULL
+  for(i in 1:length(number)){
+    a <- as.character(number[i])
+    n <- nchar(a)
+    if(n == 8){
+      if(a %in% gatong$분류코드){
+        b <- subset(gatong, gatong[, 4] == a)
+        c <- b[,6] 
+      }else{
+        print("잘못 입력하셨습니다.")
+      }
+    }else if(n == 10){
+      if(a %in% bjd[, 8]){
+        b <- subset(bjd, bjd[, 8] == a)
+        c <- b[, 6] 
+      }else if(a %in% bjd[, 7]){
+        b <- subset(bjd, bjd[, 7] == a)
+        c <- b[1, 6] 
+      }else{
+        print("잘못 입력하셨습니다.")
+      }
+    }else{
+      print("잘못 입력하셨습니다.")
+    }
+    tong <- rbind(tong, c)
+  }
+  return(tong)
+}
+

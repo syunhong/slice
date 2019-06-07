@@ -1,25 +1,23 @@
 #slice()
 
+
 slice <- function(data, at, attr = c("hid", "pid")) {
-<<<<<<< HEAD
+
   
   output <- lapply(slot(data, "people"), function(z) slice.person(z, at))
   df.output <- do.call(rbind.data.frame, output)
   attrfixed <- attr
-=======
-  output <- lapply(slot(data, "people"), function(z) slice.person(z, at))
-  df.output <- do.call(rbind.data.frame, output)
->>>>>>> e68c4cdf5aa120166fc566ef532501708151ee6e
+
   if("trip" %in% attr){
     attrfixed <- c(attr, names(data@people[[1]]@trip), "stay")
     attrfixed <- attrfixed[!attrfixed == "trip"]
   }
   df.output <- df.output[order(as.numeric(rownames(df.output))), 
                          c("area", attrfixed)]
-<<<<<<< HEAD
+
   df.output[, 1] <- .transh(df.output[, 1])
-=======
->>>>>>> e68c4cdf5aa120166fc566ef532501708151ee6e
+
+
   return(df.output)
 }
 ## slice.person()
@@ -142,11 +140,7 @@ slice.person <- function(person, at) {
   
   if(is.na(trip$o_time[1])) {
     output <- data.frame(tr_seq = 0, purpose = NA, mode = NA, o_type = 1,
-<<<<<<< HEAD
                          o_time = 0, o_zone = NA, d_type = 1, d_time = 2359,
-=======
-                         o_time = 0, o_zone = NA, d_type = 1, d_time = 0,
->>>>>>> e68c4cdf5aa120166fc566ef532501708151ee6e
                          d_zone = NA, stay = 1)
   }
   
@@ -167,7 +161,6 @@ slice.person <- function(person, at) {
   return(output)
 }
 
-<<<<<<< HEAD
 
 ## .transh() by myunghoon
 
@@ -202,5 +195,3 @@ slice.person <- function(person, at) {
   return(tong)
 }
 
-=======
->>>>>>> e68c4cdf5aa120166fc566ef532501708151ee6e
