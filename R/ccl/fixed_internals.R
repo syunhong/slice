@@ -4,6 +4,12 @@
 # Date : 2019.06.07
 # ------------------------------------------------------------------------------
 
+# ------------------------------------------------------------------------------
+# slice() fixed
+#
+# Date : 2019.06.07
+# ------------------------------------------------------------------------------
+
 ##.extract() fixed
 
 .extract <- function(person, type = "info"){
@@ -49,7 +55,8 @@
   return(output)
 }
 
-## .expand() fixed
+## .expand() fixedt
+
 .expand <- function(trip) {
   if(nrow(trip) > 1) {
     trip <- trip[order(trip$o_time),]
@@ -82,14 +89,14 @@
   }
   if(is.na(trip$d_zone[1]) == FALSE) {
     final <- length(trip$d_time)
-    output2 <- data.frame(tr_seq = final,
+    output2 <- data.frame(tr_seq = "last",
                           purpose = trip$purpose[final],
                           mode = rep(NA, length(final)),
                           o_type = trip$d_type[final],
                           o_time = as.numeric(trip$d_time)[final],
                           o_zone = trip$d_zone[final],
                           d_type = trip$d_type[final],
-                          d_time = as.numeric(trip$o_time)[final],
+                          d_time = as.numeric(trip$o_time)[1],
                           d_zone = trip$d_zone[final],
                           stay = 1)
     
@@ -116,17 +123,18 @@
                          d_zone = NA, stay = 1)
   }
   
-  else if (at < trip$o_time[1] | at >= trip$d_time[last-1]) {
-    output <- trip[last-1,]
+  else if (at < trip$o_time[1] | at >= trip$d_time[last - 1]) {
+    output <- trip[last,]
   }
   
   else {
     INDEX <- which((at >= trip$o_time) & (at < trip$d_time))
     if (length(INDEX) == 0)
       stop("There is nothing at the given moment")
-    else if (length(INDEX) > 1)
-      stop("There is more than one trip at the same time")
-    else
+    else if (length(INDEX) > 1){
+      output <- trip[INDEX, ][1, ]
+      print("There is more than one trip at the same time")
+    } else
       output <- trip[INDEX,]
   }
   
@@ -144,10 +152,10 @@
   
   for(i in 1:length(status)){
     if(names(status)[i] %in% slotNames(info)){
-      index <- slot(info, names(status)[i]) == status[[i]]
+      index <- slot(info, names(status)[i]) %in% status[[i]]
       infoindex <- rbind(infoindex, index)
     } else if(names(status)[i] %in% names(trip)){
-      index <- with(trip, eval(parse(text = names(status[i]))) == status[[i]])
+      index <- with(trip, eval(parse(text = names(status[i]))) %in% status[[i]])
       tripindex <- rbind(tripindex, index)
     }
   }
@@ -173,35 +181,28 @@
 }
 
 ## .transh() by myunghoon
-
 .transh <- function(number) {
   number <- gsub("-", "", number)
-  tong <- NULL
-  for(i in 1:length(number)){
-    a <- as.character(number[i])
-    n <- nchar(a)
-    if(n == 8){
-      if(a %in% gatong$분류코드){
-        b <- subset(gatong, gatong[, 4] == a)
-        c <- b[,6] 
-      }else{
-        print("잘못 입력하셨습니다.")
-      }
-    }else if(n == 10){
-      if(a %in% bjd[, 8]){
-        b <- subset(bjd, bjd[, 8] == a)
-        c <- b[, 6] 
-      }else if(a %in% bjd[, 7]){
-        b <- subset(bjd, bjd[, 7] == a)
-        c <- b[1, 6] 
-      }else{
-        print("잘못 입력하셨습니다.")
-      }
+  n <- nchar(number)
+  if(n == 8){
+    if(number %in% gatong$분류코드){
+      b <- subset(gatong, gatong[, 4] == number)
+      c <- b[,6] 
     }else{
-      print("잘못 입력하셨습니다.")
+      print("잘못 입력하셨습니다1.")
     }
-    tong <- rbind(tong, c)
+  }else if(n == 10){
+    if(number %in% bjd[, 8]){
+      b <- subset(bjd, bjd[, 8] == number)
+      c <- b[, 6] 
+    }else if(number %in% bjd[, 7]){
+      b <- subset(bjd, bjd[, 7] == number)
+      c <- b[1, 6] 
+    }else{
+      print("잘못 입력하셨습니다2.")
+    }
+  }else{
+    print("잘못 입력하셨습니다3.")
   }
-  return(tong)
+  return(c)
 }
-
