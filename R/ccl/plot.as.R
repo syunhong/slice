@@ -1,3 +1,12 @@
+# ------------------------------------------------------------------------------
+# plot.as()
+#
+# Date : 2019.07.03
+# ------------------------------------------------------------------------------
+### apply with class "AS"
+
+
+
 plot.as <- function(as, shp, adm_cd, ...){
   a <- .extract(as, type = "trip")
   b <- .expand(a)
@@ -17,9 +26,15 @@ plot.as <- function(as, shp, adm_cd, ...){
     as.numeric(substring(new.b[, 5], first = 1,
                          last = nchar(new.b[, 5]) - 2))
   
+  par(fig = c(0, 1, 0, 1))
+  plot.new()
+  plot.window(xlim = shp@bbox[1, ], ylim = shp@bbox[2, ])
+  par(mar = c(1, 4.1, 4, 2.1), oma = c(0, 0, 1, 0), fig = c(0.1,0.9,0.25, 1),
+      new = TRUE)
+  
   col.map <- rep("white", length(shp))
   col.map[which(adm_cd %in% new.b[, 6])] <- "red"
-  plot(shp, col = col.map, border = "white")
+  plot(shp, col = col.map, border = "white", add = TRUE)
   plot(shp, border = "grey70", add = TRUE)
   
   z <- cbind(adm_cd, coordinates(shp))
@@ -30,21 +45,25 @@ plot.as <- function(as, shp, adm_cd, ...){
     shp.index <- rbind(shp.index, wow)
   }
   for(i in 1:(length(shp.index) - 1)){
-    arrows(x0 = as.numeric(z[, 2][shp.index[i]]), 
-           y0 = as.numeric(z[, 3][shp.index[i]]), 
-           x1 = as.numeric(z[, 2][shp.index[i+1]]), 
-           y1 = as.numeric(z[, 3][shp.index[i+1]]),
-           length = 0.1)
+    lines(x = c(as.numeric(z[, 2][shp.index[i]]), 
+                as.numeric(z[, 2][shp.index[i+1]])), 
+           y = c(as.numeric(z[, 3][shp.index[i]]), 
+                 as.numeric(z[, 3][shp.index[i+1]]))
+    )
   }
   
-  plot.new()
+  
+  par(fig = c(0, 1, 0.05, 0.25), mar = c(0,0,0,0))
   plot.window(xlim = c(new.b[1, 5] - 2, new.b[nrow(new.b),5] + 2), 
               ylim = c(0, 3),
               xaxs = "i", yaxs = "i")
   
-  lines(x = c(new.b[1, 5] - 1, new.b[nrow(new.b),5] + 1), y = c(1.5, 1.5), lwd = 2)
-  lines(x = c(new.b[1, 5] - 1, new.b[1, 5] - 1), y = c(1.4, 1.6), lwd = 2)
-  lines(x = c(new.b[nrow(new.b),5] + 1, new.b[nrow(new.b),5] + 1), y = c(1.4, 1.6), lwd = 2)
+  lines(x = c(new.b[1, 5] - 1, 
+              new.b[nrow(new.b),5] + 1), y = c(1.5, 1.5), lwd = 2)
+  lines(x = c(new.b[1, 5] - 1, 
+              new.b[1, 5] - 1), y = c(1.4, 1.6), lwd = 2)
+  lines(x = c(new.b[nrow(new.b),5] + 1, 
+              new.b[nrow(new.b),5] + 1), y = c(1.4, 1.6), lwd = 2)
   text(x = new.b[1, 5] - 1, y = 1.3, labels = "0")
   text(x = new.b[nrow(new.b), 5] + 1, y = 1.3, labels = "24")
   for(i in 1:nrow(new.b)){
@@ -52,7 +71,5 @@ plot.as <- function(as, shp, adm_cd, ...){
     text(x = new.b[i, 5], y = 1.7, labels = as.character(new.b[i, 2]))
     text(x = new.b[i, 5], y = 1.3, labels = as.character(original.time[i]))
   }
-  title(main = "location of person")
-  title(xlab = "time(in hour)")
+  
 }
-
