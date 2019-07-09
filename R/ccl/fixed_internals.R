@@ -1,13 +1,7 @@
 # ------------------------------------------------------------------------------
 # slice() fixed
 #
-# Date : 2019.06.07
-# ------------------------------------------------------------------------------
-
-# ------------------------------------------------------------------------------
-# slice() fixed
-#
-# Date : 2019.06.07
+# Date : 2019.07.09
 # ------------------------------------------------------------------------------
 
 ##.extract() fixed
@@ -17,29 +11,16 @@
   
   if (type == "info") {
     infolist <- slot(person, "info")
-    output <- data.frame(hid = slot(infolist, "hid"),
-                         pid = slot(infolist, "pid"),
-                         famrel = slot(infolist, "famrel"),
-                         yrborn = slot(infolist, "yrborn"),
-                         sex = slot(infolist, "sex"),
-                         area = slot(infolist, "area"),
-                         income = slot(infolist, "income"),
-                         occ = slot(infolist, "occ"),
-                         emp = slot(infolist, "emp"),
-                         hhsize = slot(infolist, "hhsize"),
-                         dutype = slot(infolist, "dutype"),
-                         haslic = slot(infolist, "haslic"),
-                         hascar = slot(infolist, "hascar"),
-                         tstn = slot(infolist, "tstn"),
-                         tbst = slot(infolist, "tbst"))
+    output <- data.frame(infolist)
   } else if (type == "trip") {
     triplist <- slot(person, "trip")
     if(nrow(triplist) == 0){
-      triplist <- data.frame(tr_seq = NA, purpose = NA, mode = NA,
+      triplist <- data.frame(tr_id = NA, tr_seq = NA, purpose = NA, mode = NA,
                              o_type = NA, o_time = NA, o_zone = NA,
                              d_type = NA, d_time = NA, d_zone = NA, stay = 0)
     }
-    output <- data.frame(tr_seq = as.character(triplist$tr_seq),
+    output <- data.frame(tr_id = as.character(triplist$tr_id),
+                         tr_seq = as.character(triplist$tr_seq),
                          purpose = triplist$purpose,
                          mode = triplist$mode,
                          o_type = triplist$o_type,
@@ -68,7 +49,8 @@
     INDEX <- which(trip$o_time[i2] != trip$d_time[i1])
     
     if (length(INDEX) > 0) {
-      output <- data.frame(tr_seq = 1:length(INDEX),
+      output <- data.frame(tr_id = trip$tr_id[INDEX],
+                           tr_seq = 1:length(INDEX),
                            purpose = trip$purpose[INDEX],
                            mode = rep(NA, length(INDEX)),
                            o_type = trip$d_type[INDEX],
@@ -89,7 +71,8 @@
   }
   if(is.na(trip$d_zone[1]) == FALSE) {
     final <- length(trip$d_time)
-    output2 <- data.frame(tr_seq = "last",
+    output2 <- data.frame(tr_id = "last",
+                          tr_seq = "last",
                           purpose = trip$purpose[final],
                           mode = rep(NA, length(final)),
                           o_type = trip$d_type[final],
@@ -118,8 +101,8 @@
   
   
   if(is.na(trip$o_time[1])) {
-    output <- data.frame(tr_seq = 0, purpose = NA, mode = NA, o_type = 1,
-                         o_time = 0, o_zone = NA, d_type = 1, d_time = 2359,
+    output <- data.frame(tr_id = 0, tr_seq = 0, purpose = NA, mode = NA, 
+                         o_type = 1, o_time = 0, o_zone = NA, d_type = 1, d_time = 2359,
                          d_zone = NA, stay = 1)
   }
   
@@ -151,8 +134,8 @@
   trip <- slot(person, "trip")
   
   for(i in 1:length(status)){
-    if(names(status)[i] %in% slotNames(info)){
-      index <- slot(info, names(status)[i]) %in% status[[i]]
+    if(names(status)[i] %in% names(info)){
+      index <- n_person@info[names(status)[i]] %in% status[[i]]
       infoindex <- rbind(infoindex, index)
     } else if(names(status)[i] %in% names(trip)){
       index <- with(trip, eval(parse(text = names(status[i]))) %in% status[[i]])

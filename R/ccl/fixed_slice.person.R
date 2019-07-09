@@ -13,3 +13,5 @@ slice.person <- function(person, at) { ### apply with class "AS"
   
   cbind(x, y)
 }
+
+
