@@ -5,13 +5,14 @@
 # Author: Seong-Yun Hong (syhong@khu.ac.kr)
 # ------------------------------------------------------------------------------
 slice <- function(x, at, vars) {
+  if (missing(vars))
+    vars <- names(x[[1]]@info)
   
-  output <- lapply(x, FUN = function(z, at, vars) {
+  output <- lapply(x, FUN = function(z) {
     info.df <- as.data.frame(z@info, stringsAsFactors = FALSE)
-    if (!missing(vars))
-      info.df <- info.df[vars]
+    info.df <- info.df[vars]
     
-    trip.df <- .locate(z@trip, at, complete.only = FALSE)
+    trip.df <- .locate(z@trip, at)
     output <- cbind(info.df, trip.df)
     return(output)    
   })

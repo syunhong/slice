@@ -30,126 +30,163 @@
 #   at        A numeric vector of length one, indicating the time at which the
 #             location of the person should be extracted.
 #
-#   complete.only   Logical.
+#   na.rm     Logical.   
+#
+#   expand    Logical.
+#
+#
 # ------------------------------------------------------------------------------
-.locate <- function(trip, at, complete.only = FALSE) {
-  
-  # Validate the user input arguments ------------------------------------------
-  if (nrow(trip) < 1)
-    stop("'trip' has no records")
-  else if (any(is.na(trip$o_time) | !is.numeric(trip$o_time)))
-    stop("invalid 'o_time' values in the object 'trip'", call. = FALSE)
-  else if (any(is.na(trip$d_time) | !is.numeric(trip$d_time)))
-    stop("invalid 'd_time' values in the object 'trip'", call. = FALSE)
-  
-  # Find the location of the object at the given time instant 'at' -------------
+.locate <- function(trip, at, na.rm = TRUE, expand = TRUE) {
+
+  n <- nrow(trip)
   begTime <- trip$o_time
   endTime <- trip$d_time
-  n <- nrow(trip)
+  NAs <- (is.na(begTime) | is.na(endTime))
   
   # ----------------------------------------------------------------------------
-  # Four possible cases!
-  #
+  # Handling NA values
   # ----------------------------------------------------------------------------
-  # <-----> (begTime[i], endTime[i]) <------------> (begTime[n], endTime[n]) <->
-  # ----------------------------------------------------------------------------
-  # Case 1: at > begTime[i] & at <= endTime[i]
-  #         o_zone[i] / mode[i] / purpose[i] / on.move = TRUE         
-  #
-  # Case 2: at <= begTime[1]
-  #         o_zone[1] / NA / NA / on_move = FALSE
-  #
-  # Case 3: at > endTime[n]
-  #         d_zone[n] / mode[n] / purpose[n] / on.move = TRUE
-  #
-  # Case 4: at > endTime[i] & at <= begTime[i+1]
-  #         d_zone[i] / purpose[i] / mode[i] / on_move = FALSE
-  # ----------------------------------------------------------------------------
-  case1 <- (begTime < at) & (endTime >= at)
-  
-  if (complete.only) {
-    case2 <- FALSE
-    case3 <- FALSE
-    case4 <- FALSE
-  } else {
-    case2 <- begTime[1] >= at
-    case3 <- endTime[n] < at
-    
-    if (n == 1)
-      case4 <- FALSE
+  if (sum(NAs) >= 1) {
+    if (na.rm)
+      warning(sum(NAs), "rows removed due to NA", call. = FALSE)
     else
-      case4 <- (endTime[1:(n-1)] < at) & (begTime[2:n] >= at)    
+      stop("NAs are not allowed when 'na.rm' is TRUE", call. = FALSE)
+    
+    # --------------------------------------------------------------------------
+    # Update the input data frame, n, begTime and endTime
+    # --------------------------------------------------------------------------
+    trip <- trip[-which(NAs),]
+    n <- nrow(trip)
+    begTime <- trip$o_time
+    endTime <- trip$d_time
   }
   
   # ----------------------------------------------------------------------------
-  # Case 1: If the person is in the middle of a trip (or trips), he/she is
-  #         assumed to be located at the origin (i.e., trip$o_zone[POSITION]).
+  # If there is no trip information:
   # ----------------------------------------------------------------------------
-  if (any(case1)) {
-    POSITION <- which(case1)
-    
-    if (length(POSITION) > 1) {
-      warning("multiple records match for the given time instance 'at'", 
-              call. = FALSE)
-      warning("the records other than the first one will be ignored", 
-              call. = FALSE)
-      POSITION <- POSITION[1]
-    }
-    
-    area <- trip$o_zone[POSITION]
-    mode <- trip$mode[POSITION]
-    purpose <- trip$purpose[POSITION]
-    on.move <- TRUE
+  if (n == 0) {
+    warning("'trip' has no records; returns NAs")
+    output <- data.frame(area = NA, purpose = NA, mode = NA, on.move = NA)
   } 
   
   # ----------------------------------------------------------------------------
-  # Case 2: If the given time instant 'at' is before the first trip is made, 
-  #         the person would be located in the origin (i.e., trip$o_zone[1]).
-  # ----------------------------------------------------------------------------
-  else if (case2) {
-    area <- trip$o_zone[1]
-    mode <- NA
-    purpose <- NA
-    on.move <- FALSE
-  }
-  
-  # ----------------------------------------------------------------------------
-  # Case 3: If 'at' is after the last trip is complete, the person is assumed
-  #         to be located in his/her final destination (i.e., trip$d_zone[n]).
-  # ----------------------------------------------------------------------------
-  else if (case3) {
-    area <- trip$d_zone[n]
-    mode <- trip$mode[n]
-    purpose <- trip$purpose[n]
-    on.move <- FALSE
-  }
-  
-  # ----------------------------------------------------------------------------
-  # Case 4: If the person is in between two trips, he/she would be located in
-  #         the destination of the former (or the origin of the latter). That
-  #         is, trip$d_zone[POSITION].
-  # ----------------------------------------------------------------------------
-  else if (any(case4)) {
-    POSITION <- which(case4)
-    
-    if (length(POSITION) > 1)
-      stop("unable to find the location at the given time instant 'at'", 
-           call. = FALSE)
-    
-    area <- trip$d_zone[POSITION]
-    mode <- trip$mode[POSITION]
-    purpose <- trip$purpose[POSITION]
-    on.move <- FALSE
-  }
-  
-  # ----------------------------------------------------------------------------
-  # If none of the four cases are TRUE:
+  # If there is trip information:
   # ----------------------------------------------------------------------------
   else {
-    stop("unable to find the location at the given time instant 'at'", 
-         call. = FALSE)
-  }  
+    
+    # --------------------------------------------------------------------------
+    # Validate the user input arguments
+    # --------------------------------------------------------------------------
+    if (any(!is.numeric(trip$o_time)))
+      stop("invalid 'o_time' values in the object 'trip'", call. = FALSE)
+    else if (any(!is.numeric(trip$d_time)))
+      stop("invalid 'd_time' values in the object 'trip'", call. = FALSE)
+
+    # --------------------------------------------------------------------------
+    # Four possible cases!
+    #
+    # --------------------------------------------------------------------------
+    # <-----> (begTime[i], endTime[i]) <--------> (begTime[n], endTime[n]) <--->
+    # --------------------------------------------------------------------------
+    # Case 1: at > begTime[i] & at <= endTime[i]
+    #         o_zone[i] / mode[i] / purpose[i] / on.move = TRUE         
+    #
+    # Case 2: at <= begTime[1]
+    #         o_zone[1] / NA / NA / on_move = FALSE
+    #
+    # Case 3: at > endTime[n]
+    #         d_zone[n] / mode[n] / purpose[n] / on.move = TRUE
+    #
+    # Case 4: at > endTime[i] & at <= begTime[i+1]
+    #         d_zone[i] / purpose[i] / mode[i] / on_move = FALSE
+    # --------------------------------------------------------------------------
+    case1 <- (begTime < at) & (endTime >= at)
+    
+    if (!expand) {
+      case2 <- FALSE
+      case3 <- FALSE
+      case4 <- FALSE
+    } else {
+      case2 <- begTime[1] >= at
+      case3 <- endTime[n] < at
+      
+      if (n == 1)
+        case4 <- FALSE
+      else
+        case4 <- (endTime[1:(n-1)] < at) & (begTime[2:n] >= at)    
+    }
+    
+    # --------------------------------------------------------------------------
+    # Case 1: If the person is in the middle of a trip (or trips), he/she is
+    #         assumed to be located at the origin (i.e., trip$o_zone[POSITION]).
+    # --------------------------------------------------------------------------
+    if (any(case1)) {
+      POSITION <- which(case1)
+      
+      if (length(POSITION) > 1) {
+        warning("multiple records match for the given time instance 'at'", 
+                call. = FALSE)
+        warning("the records other than the first one will be ignored", 
+                call. = FALSE)
+        POSITION <- POSITION[1]
+      }
+      
+      area <- trip$o_zone[POSITION]
+      mode <- trip$mode[POSITION]
+      purpose <- trip$purpose[POSITION]
+      on.move <- TRUE
+    } 
+    
+    # --------------------------------------------------------------------------
+    # Case 2: If the given time instant 'at' is before the first trip is made, 
+    #         the person would be located in the origin (i.e., trip$o_zone[1]).
+    # --------------------------------------------------------------------------
+    else if (case2) {
+      area <- trip$o_zone[1]
+      mode <- NA
+      purpose <- NA
+      on.move <- FALSE
+    }
+    
+    # --------------------------------------------------------------------------
+    # Case 3: If 'at' is after the last trip is complete, the person is assumed
+    #         to be located in his/her final destination (i.e., trip$d_zone[n]).
+    # --------------------------------------------------------------------------
+    else if (case3) {
+      area <- trip$d_zone[n]
+      mode <- trip$mode[n]
+      purpose <- trip$purpose[n]
+      on.move <- FALSE
+    }
+    
+    # --------------------------------------------------------------------------
+    # Case 4: If the person is in between two trips, he/she would be located in
+    #         the destination of the former (or the origin of the latter). That
+    #         is, trip$d_zone[POSITION].
+    # --------------------------------------------------------------------------
+    else if (any(case4)) {
+      POSITION <- which(case4)
+      
+      if (length(POSITION) > 1)
+        stop("unable to find the location at the given time instant 'at'", 
+             call. = FALSE)
+      
+      area <- trip$d_zone[POSITION]
+      mode <- trip$mode[POSITION]
+      purpose <- trip$purpose[POSITION]
+      on.move <- FALSE
+    }
+    
+    # --------------------------------------------------------------------------
+    # If none of the four cases are TRUE:
+    # --------------------------------------------------------------------------
+    else {
+      stop("unable to find the location at the given time instant 'at'", 
+           call. = FALSE)
+    }  
+    
+    output <- data.frame(area, purpose, mode, on.move, stringsAsFactors = FALSE)
+  }
   
-  output <- data.frame(area, purpose, mode, on.move, stringsAsFactors = FALSE)
   return(output)
 }
