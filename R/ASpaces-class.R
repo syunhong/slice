@@ -49,7 +49,7 @@ setMethod("initialize", "ASpaces",
 
 validateASpaces <- function(object) {
   
-  if (all(lapply(x@data, function(z) class(z)) == "ASpace"))
+  if (all(lapply(object@data, function(z) class(z)) == "ASpace"))
     TRUE
   else
     paste("all elements in the 'data' slot must be of class ASpace")

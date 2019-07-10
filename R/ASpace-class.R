@@ -93,7 +93,7 @@ validateASpace <- function(object) {
   if (nrow(trip) <= 0)
     warning("no information on trips", call. = FALSE)
   else if (!is.integer(trip[,1]) | min(trip[,1]) != 1)
-    stop("invalid values in column 'tr_seq', slot 'trip'", call. = FALSE)
+    stop("invalid values in column 'tr_id', slot 'trip'", call. = FALSE)
 
   return(TRUE)
 }
