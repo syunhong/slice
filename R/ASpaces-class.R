@@ -23,8 +23,8 @@ setMethod("initialize", "ASpaces",
 
             # ------------------------------------------------------------------
             # The slot 'attr' has supplementary information about the data. For
-            # example, it may contain the name of the survey, the data it was
-            # conducted, the code book for the variables.
+            # example, it may contain the name of the survey, the date it was
+            # conducted, or the code book for the variables.
             # ------------------------------------------------------------------
             attr.names <- c("name", "date", "desc")
             if (missing(attr))

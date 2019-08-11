@@ -3,10 +3,10 @@
 #
 # Author: Seong-Yun Hong <hong.seongyun@gmail.com>
 # ------------------------------------------------------------------------------
-people <- list(p1 = list(info = list(), trip = data.frame()),
-               p2 = list(info = list(), trip = data.frame()))
+source("R/ASpace-class.R")
+source("R/ASpaces-class.R")
 
-test <- activity(people)
+source("R/locate.R")
+source("R/slice.R")
 
-# Print the 'test' object
-test
+load("d:/dev/slice_data/weekdays10.RData")
