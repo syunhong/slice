@@ -19,9 +19,9 @@ setMethod("[[<-",
 setMethod("summary", 
           signature = "ASpaces", 
           definition = function(object) {
-            trips <- unlist(lapply(weekdays10@data, function(z) nrow(z@trip)))
-            
-            cat("A data object of class \"ASpaces\"\n\n")
+            trips <- unlist(lapply(object@data, function(z) nrow(z@trip)))
+
+            cat("An object of class \"ASpaces\"\n\n")
             cat("Name:", object@attr$name, "\n")
             cat("Date:", as.character(object@attr$date), "\n")
             cat("Description:\n")
@@ -37,16 +37,22 @@ setMethod("summary",
                 round(max(trips), 1), "\n\n")
             
             cat("Slot \"sp\":\n")
-            cat("SpatialPolygonsDataFrame\n")
+            cat(class(object@sp)[1], "\n")
           })
 
 setMethod("show", 
           signature = "ASpaces", 
           definition = function(object) {
-            cat("An object of class \"ASpaces\"\n\n")
+            cat("An object of class \"ASpaces\"\n")
             cat("Slot \"data\":\n")
+            cat(length(object@data), "list elements, each of which is:\n")
+            str(object@data[[1]])
+            cat("\n")
             
-            cat("Slot \"data\":\n")
+            cat("Slot \"attr\":\n")
+            print(object@attr)
+            cat("\n")
             
             cat("Slot \"sp\":\n")
+            print(object@sp)
           })
