@@ -16,6 +16,26 @@ setMethod("[[<-",
             x
           })
 
+setMethod("update", 
+          signature = "ASpaces",
+          definition = function(object, data, attr, sp) {
+            
+            if (!missing(data)) {
+              object@data <- data
+            } 
+            
+            if (!missing(attr)) {
+              object@attr <- attr
+            }
+            
+            if (!missing(sp)) {
+              object@sp <- sp
+            }
+          
+            return(object)
+          }
+          )
+
 setMethod("summary", 
           signature = "ASpaces", 
           definition = function(object) {
