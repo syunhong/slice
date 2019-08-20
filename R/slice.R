@@ -17,5 +17,9 @@ slice <- function(x, at, vars) {
     return(output)    
   })
   
-  output
+  result.df <- data.frame(matrix(unlist(output), ncol = 19, byrow = TRUE), 
+                          stringsAsFactors = FALSE)
+  names(result.df) <- names(output[[1]])
+  
+  return(result.df)
 }
