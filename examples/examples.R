@@ -20,25 +20,12 @@ load("d:/dev/slice_data/seoul_sp.RData")
 
 weekdays10.sp <- update(weekdays10, sp = seoul.sp)
 
-dist900 <- slice(weekdays10.sp@data, at = 900)
+dist_0900 <- slice(weekdays10.sp@data, at = 900)
+dist_1300 <- slice(weekdays10.sp@data, at = 1300)
+dist_1800 <- slice(weekdays10.sp@data, at = 1800)
 
-as.segdata <- function(area, by) {
-  
-  if (missing(by)){
-    tb <- table(area)
-    output <- data.frame(table(area))
-    names(output) <- c("area", "count")
-  } else {
-    tb <- table(area, by)
-    segdata.df <- data.frame(rbind(tb))
-    colnames(segdata.df) <- colnames(tb)
-    output <- cbind(area = rownames(segdata.df), segdata.df)
-    rownames(output) <- 1:nrow(output)
-  }
-    
-  return(output)
-}
+
 
 x <- as.segdata(tmp$area, tmp$income)
-
+weekdays10.subset <- update(weekdays10.sp, data = weekdays10.sp@data[1:100])
 
