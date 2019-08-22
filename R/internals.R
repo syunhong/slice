@@ -66,7 +66,7 @@
   # ----------------------------------------------------------------------------
   if (n == 0) {
     warning("'trip' has no records; returns NAs")
-    output <- data.frame(area = NA, purpose = NA, mode = NA, on.move = NA)
+    output <- data.frame(location = NA, purpose = NA, mode = NA, on.move = NA)
   } 
   
   # ----------------------------------------------------------------------------
@@ -131,7 +131,7 @@
         POSITION <- POSITION[1]
       }
       
-      area <- trip$o_zone[POSITION]
+      location <- trip$o_zone[POSITION]
       mode <- trip$mode[POSITION]
       purpose <- trip$purpose[POSITION]
       on.move <- TRUE
@@ -142,7 +142,7 @@
     #         the person would be located in the origin (i.e., trip$o_zone[1]).
     # --------------------------------------------------------------------------
     else if (case2) {
-      area <- trip$o_zone[1]
+      location <- trip$o_zone[1]
       mode <- NA
       purpose <- NA
       on.move <- FALSE
@@ -153,7 +153,7 @@
     #         to be located in his/her final destination (i.e., trip$d_zone[n]).
     # --------------------------------------------------------------------------
     else if (case3) {
-      area <- trip$d_zone[n]
+      location <- trip$d_zone[n]
       mode <- trip$mode[n]
       purpose <- trip$purpose[n]
       on.move <- FALSE
@@ -171,7 +171,7 @@
         stop("unable to find the location at the given time instant 'at'", 
              call. = FALSE)
       
-      area <- trip$d_zone[POSITION]
+      location <- trip$d_zone[POSITION]
       mode <- trip$mode[POSITION]
       purpose <- trip$purpose[POSITION]
       on.move <- FALSE
@@ -185,7 +185,7 @@
            call. = FALSE)
     }  
     
-    output <- data.frame(area, purpose, mode, on.move, 
+    output <- data.frame(location, purpose, mode, on.move, 
                          stringsAsFactors = FALSE)
   }
   
