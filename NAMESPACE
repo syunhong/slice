@@ -1,0 +1,9 @@
+import(sp)
+
+export(slice)
+exportClasses(ASpace, ASpaces)
+exportMethods(update, summary, show, "[[", "[[<-")
+
+S3method(as.data.frame, ASpaces)
+S3method(as.Tracks, ASpace)
+S3method(as.tracksCollection, ASpaces)
