@@ -1,6 +1,6 @@
 import(sp)
 
-export(slice)
+export(slice, extract)
 exportClasses(ASpace, ASpaces)
 exportMethods(update, summary, show, "[[", "[[<-")
 
