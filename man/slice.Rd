@@ -1,17 +1,18 @@
 \name{slice}
 \alias{slice}
-\title{Function Title}
+\title{Population Distribution at a Specific Point in Time}
 \description{
-This is a function description.
+From a given data set of class \code{ASpaces}, the function finds the location 
+of each individual at a specific point in time and returns the results as a
+\code{data.frame} object.
 }
 \usage{
-slice(x, y, z)
+slice(x, at, vars)
 }
 \arguments{
-  \item{x}{a numeric matrix or data frame with coordinates.}
-  \item{y}{a type of the data.}
-  \item{z}{a type of the data.}
-  \item{\dots}{optional arguments to be passed to another function.}
+  \item{x}{an object of class \code{ASpaces}.}
+  \item{at}{a numeric vector of length 1, or an object of class \code{POSIXct}.}
+  \item{vars}{a character vector to specify the variables .}
 }
 
 \details{
@@ -28,7 +29,7 @@ An extra details come here.
 Seong-Yun Hong
 }
 \seealso{
-\code{\link{foo1}}, \code{\link{foo2}}, \code{foo3}
+\code{\link{slice_to_df}}, \code{\link{ASpaces-class}}
 }
 
 \examples{
