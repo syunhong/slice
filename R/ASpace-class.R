@@ -1,7 +1,25 @@
 # ------------------------------------------------------------------------------
-# Class 'ASpace'
+# Class "ASpace"
 #
-# Author: Seong-Yun Hong (syhong@khu.ac.kr)
+# Description:
+#
+#
+# Slots:
+#
+#   info
+#
+#   trip
+#
+# Methods:
+#
+#
+#
+#
+#
+#
+# Author(s):
+#
+#   Seong-Yun Hong (syhong@khu.ac.kr)
 # ------------------------------------------------------------------------------
 setClass("ASpace", slots = c(info = "list", trip = "data.frame"))
 

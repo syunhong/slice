@@ -1,8 +1,33 @@
 # ------------------------------------------------------------------------------
 # as.Tracks()
+#
+# Coerces the Input Object of Class ASpace to a Tracks Object
+#
+# Description:
 # 
-# Date: 2019-08-22
-# Author: Seong-Yun Hong (syhong@khu.ac.kr)
+# 
+# 
+# Usage:
+#
+#   as.Tracks(x, sp, varname)
+#
+# Arguments:
+# 
+#   x             an object of class ASpace
+#
+#   sp            
+#
+#   varname       
+#
+# Details:
+# 
+# Value:
+#
+#   An object of class Tracks
+#
+# Author(s):
+#
+#   Seong-Yun Hong (syhong@khu.ac.kr)
 # ------------------------------------------------------------------------------
 as.Tracks <- function(x, sp, varname) {
   

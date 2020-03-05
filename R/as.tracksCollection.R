@@ -1,8 +1,34 @@
 # ------------------------------------------------------------------------------
 # as.tracksCollection()
+#
+# Coerces the Input Object of Class ASpaces to a tracksCollection Object
+#
+# Description:
 # 
-# Date: 2019-08-22
-# Author: Seong-Yun Hong (syhong@khu.ac.kr)
+# 
+# 
+# Usage:
+#
+#   as.tracksCollection(x, sp, varname)
+#
+# Arguments:
+# 
+#   x             an object of class ASpaces
+#
+#   sp            
+#
+#   varname       
+#
+# Details:
+#
+# 
+# Value:
+#
+#   An object of class tracksCollection
+#
+# Author(s):
+#
+#   Seong-Yun Hong (syhong@khu.ac.kr)
 # ------------------------------------------------------------------------------
 as.tracksCollection <- function(x, sp, varname) {
 

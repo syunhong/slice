@@ -1,23 +1,10 @@
 # ------------------------------------------------------------------------------
 # .select()
 #
-# Date: 2019-09-16
-# Author: Changlock Choi (hihi7100@khu.ac.kr)
+# An internal function written by:
 #
-# .exclude returns list to figure out which person's data had to be
-# extracted.
-# 1) if someone's data satisfy the status which user set at the first of using
-# subset.ASL, it returns all value.
-# 2) but if data didn't satisfy all of the status, it returns NA value
-# 
-# there is a little different in how it works for info and trip
-#
-# info has only 1 length -> it just have the one boolean data for one status
-# -> check any of it has false -> if there is false return NA, there is no false
-# return all value
-#
-# but trip can have multiple length for one status. -> check row by row ->
-# if there is false on some rows -> exclude that rows -> return ramainders
+#   Changlock Choi (hihi7100@khu.ac.kr)
+#   Seong-Yun Hong (syhong@khu.ac.kr)
 # ------------------------------------------------------------------------------
 .select <- function(x, condition, all){
   

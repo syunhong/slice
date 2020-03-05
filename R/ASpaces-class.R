@@ -1,7 +1,30 @@
 # ------------------------------------------------------------------------------
-# Class 'ASpaces'
+# Class "ASpaces"
 #
-# Author: Seong-Yun Hong <hong.seongyun@gmail.com>
+# Description:
+#
+#
+# Slots:
+#
+#   info
+#
+#   trip
+#
+#
+# Extends:
+#
+#   Class "ASpace"
+#
+# Methods:
+#
+#
+#
+#
+#
+#
+# Author(s):
+#
+#   Seong-Yun Hong (syhong@khu.ac.kr)
 # ------------------------------------------------------------------------------
 setClass("ASpaces", slots = c(data = "list", attr = "list", sp = "Spatial"))
 

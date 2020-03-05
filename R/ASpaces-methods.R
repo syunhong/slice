@@ -1,7 +1,14 @@
 # ------------------------------------------------------------------------------
-# Methods for class 'ASpaces'
+# Methods for class "ASpaces"
 #
-# Author: Seong-Yun Hong <hong.seongyun@gmail.com>
+#
+#
+#
+#
+#
+# Author(s):
+#
+#   Seong-Yun Hong (syhong@khu.ac.kr)
 # ------------------------------------------------------------------------------
 setMethod("[[", 
           signature = "ASpaces", 

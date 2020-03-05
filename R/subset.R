@@ -1,16 +1,40 @@
 # ------------------------------------------------------------------------------
 # subset()
 #
+# Subsets the Input object of Class ASpaces
+#
 # Description:
-# Function subset_ASP can extract data which user wants. 
-# It requires 2 argument, ASpaces and status
-# ASpaces is the data to be subsetted(class of ASpaces)
-# status is list of expression indicating variables and specific values
-# ex) list(sex = 1, yrborn = 1949:1990, income = 3)
 #
-# Author: Changlock Choi (hihi7100@khu.ac.kr)
 #
-# Last updated: 2020-03-05
+#
+# Usage:
+#
+#   subset(x, condition, vars, all = TRUE, showProgress = TRUE)
+#
+# Arguments:
+# 
+#   x             an object of class ASpacest
+#
+#   condition     a list.
+#
+#   vars          an optional character vector.
+#
+#   all           logical.
+#
+#   showProgress  logical. If TRUE, a progress bar appears on the R console 
+#                 while iterating.
+#
+# Details:
+# 
+# 
+# 
+# Value:
+#
+#   An object of class ASpaces
+#
+# Author(s):
+#
+#   Changlock Choi (hihi7100@khu.ac.kr), Seong-Yun Hong (syhong@khu.ac.kr)
 # ------------------------------------------------------------------------------
 subset <- function(x, condition, vars, all = TRUE, showProgress = TRUE) {
   

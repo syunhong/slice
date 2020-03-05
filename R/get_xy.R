@@ -1,8 +1,9 @@
 # ------------------------------------------------------------------------------
 # .get_xy()
 #
-# Date: 2019-08-20
-# Author: Seong-Yun Hong (syhong@khu.ac.kr)
+# An internal function written by:
+#
+#   Seong-Yun Hong (syhong@khu.ac.kr)
 # ------------------------------------------------------------------------------
 .get_xy <- function(address, sp, varname, verbose = FALSE) {
   

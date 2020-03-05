@@ -1,40 +1,9 @@
 # ------------------------------------------------------------------------------
 # .locate()
 #
-# Date: 2019-07-08
-# Author: Seong-Yun Hong (syhong@khu.ac.kr)
+# An internal function written by:
 #
-# Description:
-#   This is an internal function to be used within slice(). It takes a sequence
-#   of trips made by a single person (or object) and a numeric vector 
-#   representing time at which the location of the person should be extracted.
-#   The function returns the results as a data frame object.
-#
-# Arguments:
-#   trip      The input data.frame 'trip' includes the following variables:
-#  
-#             $tr_id
-#             $tr_seq
-#             $purpose
-#             $mode
-#             $o_type
-#             $o_time
-#             $o_zone
-#             $d_type
-#             $d_time
-#             $d_zone
-#
-#             It is assumed that the trips in 'trip' are sorted in ascending 
-#             order of $o_time. If not, the function may not work as intended.
-#
-#   at        A numeric vector of length one, indicating the time at which the
-#             location of the person should be extracted.
-#
-#   na.rm     Logical.   
-#
-#   expand    Logical.
-#
-#
+#   Seong-Yun Hong (syhong@khu.ac.kr)
 # ------------------------------------------------------------------------------
 .locate <- function(trip, id, at, na.rm, silent) {
 
