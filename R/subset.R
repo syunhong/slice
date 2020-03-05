@@ -12,11 +12,48 @@
 #
 # Last updated: 2020-03-05
 # ------------------------------------------------------------------------------
-subset <- function(x, status){
-  output <- lapply(slot(x, "data"), function(z) .exclude(z, status))
-  na.index <- lapply(output, function(z) typeof(z) == "S4")
-  na.index <- do.call(rbind.data.frame, na.index)
-  output <- output[na.index[, 1]]
-  new.ASP <- update(x, data = output)
-  return(new.ASP)
+subset <- function(x, condition, vars, all = TRUE, showProgress = TRUE) {
+  
+  # ----------------------------------------------------------------------------
+  # Is 'x' a valid ASpaces object?
+  # ----------------------------------------------------------------------------
+  if (!inherits(x, "ASpaces"))
+    stop("'x' must be of class ASpaces", call. = FALSE)
+  else
+    data.list <- slot(x, "data")
+  
+  # ----------------------------------------------------------------------------
+  # If 'condition' is given:
+  # ----------------------------------------------------------------------------
+  if (!missing(condition)) {
+    if (showProgress & require(pbapply)) {
+      cat("Finding elements satisfying the given conditions\n")
+      INDEX <- pbsapply(data.list, function(z) .select(z, condition, all))
+    } else {
+      INDEX <- sapply(data.list, function(z) .select(z, condition, all))
+    }
+      
+    data.list <- data.list[INDEX]
+  }
+  
+  # ----------------------------------------------------------------------------
+  # If 'vars' is given:
+  # ----------------------------------------------------------------------------
+  if (!missing(vars)) {
+    if (showProgress & require(pbapply)) {
+      cat("Dropping the variables not included in 'vars'\n")
+      data.list <- pblapply(data.list, function(z) {
+        z@info <- z@info[vars]
+        return(z)
+      })
+    } else {
+      data.list <- lapply(data.list, function(z) {
+        z@info <- z@info[vars]
+        return(z)
+      })
+    }
+  }
+  
+  output <- update(x, data = data.list)
+  return(output)
 }
