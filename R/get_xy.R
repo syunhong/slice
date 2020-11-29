@@ -7,6 +7,7 @@
 # ------------------------------------------------------------------------------
 .get_xy <- function(address, sp, varname, verbose = FALSE) {
   
+  
   if (inherits(sp, "SpatialPolygons")) {
     if (verbose) 
       warning("SpatialPolygons or one that inherits from it is provided.\n",
@@ -24,7 +25,7 @@
          "  SpatialPolygons, SpatialPolygonsDataFrame")
   }
   
-  matching_table <- data.frame(sp)[, names(sp) == varname]
+  matching_table <- slot(sp, "data")[, names(sp) == varname]
   ID <- match(address, matching_table)
   
   return(xy[ID,])
