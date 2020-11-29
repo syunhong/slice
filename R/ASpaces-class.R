@@ -60,7 +60,9 @@ setMethod("initialize", "ASpaces",
               stop("'attr' must be of class list", call. = FALSE)
 
             # ------------------------------------------------------------------
-            # The slot 'sp' contains the map.
+            # The slot 'sp' contains spatialpolygon or spatialpoint class data
+            # that can indicate the specific location of o_zone and d_zone in 
+            # trip
             # ------------------------------------------------------------------
             if (missing(sp))
               .Object@sp <- new("Spatial")
