@@ -15,9 +15,10 @@
 # 
 #   x             an object of class ASpace
 #
-#   sp            
+#   sp            an object of class sp used in x
 #
-#   varname       
+#   varname       name of the column in sp's data.frame which can be matched 
+#                 with o_zone and d_zone in ASpaces
 #
 # Details:
 # 
