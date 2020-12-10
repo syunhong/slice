@@ -50,7 +50,7 @@
 #   Seong-Yun Hong (syhong@khu.ac.kr)
 # ------------------------------------------------------------------------------
 slice <- function(x, at, vars, showProgress = TRUE, na.rm = TRUE, 
-                  silent = FALSE) {
+                  silent = FALSE, mc = FALSE) {
 
   # ----------------------------------------------------------------------------
   # Is 'x' a valid ASpaces object?
@@ -72,28 +72,36 @@ slice <- function(x, at, vars, showProgress = TRUE, na.rm = TRUE,
   if (missing(vars))
     vars <- names(slot(df[[1]], "info"))
 
-  if (showProgress & require(pbapply))
+  if (showProgress & require(pbapply)){
+
     output <- pblapply(df, FUN = function(z, vars) {
       info <- as.data.frame(z@info, stringsAsFactors = FALSE)
       trip <- .locate(z@trip, info$id, at, na.rm, silent)
       output <- cbind(info[vars], trip)
       return(output)
-      })
-  else
+    })}
+  else if(mc == TRUE){
+    cl <- makeCluster(8)
+    clusterExport(cl, ".locate")
+    output <- parLapply(cl, X = testdata, fun = function(z, vars){
+      info <- as.data.frame(z@info, stringsAsFactors = FALSE)
+      trip <- .locate(z@trip, info$id, at, na.rm, silent)
+      output <- cbind(info[vars], trip)
+      return(output)
+    })}
+  else{
     output <- lapply(df, FUN = function(z, vars) {
       info <- as.data.frame(z@info, stringsAsFactors = FALSE)
       trip <- .locate(z@trip, info$id, at, na.rm, silent)
       output <- cbind(info[vars], trip)
       return(output)
     })
-
+}
   output.unlist <- unlist(output)
   output.length <- length(vars) + 4
-
   output.df <- data.frame(matrix(output.unlist, ncol = output.length, 
                                  byrow = TRUE), 
                           stringsAsFactors = TRUE)
-
   names(output.df) <- names(output[[1]])
   
   return(output.df)

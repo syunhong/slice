@@ -7,7 +7,7 @@ library(sp)
 library(rgdal)
 library(trajectories)
 library(spacetime)
-
+library(parallel)
 source("R/as.Tracks.R")
 source("R/as.TracksCollection.R")
 source("R/ASpace-class.R")
@@ -24,7 +24,7 @@ source("R/subset.R")
 load("examples/sampledata.RData")
 
 ##example of simple slice function
-slice(testASP, 1200)
+a <- slice(testASP, 1200, showProgress = F)
 
 ##example of as.TracksCollection
 testTC <- as.tracksCollection(testASP) ##without any argument
@@ -47,3 +47,26 @@ testaspace <- new("ASpace", info = list(id = 1), trip = testtrip)
 pointaspaces <- new("ASpaces", data = list(testaspace), sp = testshp)
 
 as.tracksCollection(pointaspaces, varname = "adress")
+
+
+vars <- names(slot(testdata[[1]], "info"))
+aaaa <- parLapply(cl = makeCluster(8), X = testdata, fun = function(z, vars){
+  info <- as.data.frame(z@info, stringsAsFactors = FALSE)
+  trip <- locate(z@trip, info$id, at, na.rm, silent)
+  output <- cbind(info[vars], trip)
+})
+testdata[[1]]
+
+
+
+
+ww <- function(testdata, at, na.rm = TRUE, silent = TRUE){
+  aa <- makeCluster(8)
+    clusterExport(cl = aa, ".locate")
+aaaa <- parLapply(cl = aa, X = testdata, fun = function(z, vars){
+  info <- as.data.frame(z@info, stringsAsFactors = FALSE)
+  trip <- .locate(z@trip, info$id, at, na.rm, silent)
+  output <- cbind(info[vars], trip)
+})
+}
+
