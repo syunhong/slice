@@ -84,7 +84,7 @@ slice <- function(x, at, vars, showProgress = TRUE, na.rm = TRUE,
   
   if (mc){
     core <- .checkslicemc(core)
-    mccl <- makeCluster(detectCores() - 1)
+    mccl <- makeCluster(core)
     clusterExport(cl = mccl, ".locate")
   }
   
