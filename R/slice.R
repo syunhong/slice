@@ -29,6 +29,9 @@
 #   silent        logical. If TRUE, if any trip records have NAs in the time
 #                 fields, a warning message will be provided.
 #
+#   mc            (temporary arg name). logical. If TRUE, function is operated 
+#                 in parallel. See Details.
+#
 # Details:
 #
 #   The slice() function attempts to retrieve the locations of people in the 
@@ -40,6 +43,8 @@
 #   The 'trip' slot contains a sequence of trips made by each person, and it is
 #   assumed that the trips are sorted in ascending order of the departure time
 #   (i.e., $o_time). If NOT, this function may not work as intended.
+#
+#   Parallel processing of function is done through the parallel package. 
 # 
 # Value:
 #
@@ -50,8 +55,8 @@
 #   Seong-Yun Hong (syhong@khu.ac.kr)
 # ------------------------------------------------------------------------------
 slice <- function(x, at, vars, showProgress = TRUE, na.rm = TRUE, 
-                  silent = FALSE, mc = FALSE) {
-
+                  silent = FALSE, mc = FALSE, core) {
+  
   # ----------------------------------------------------------------------------
   # Is 'x' a valid ASpaces object?
   # ----------------------------------------------------------------------------
@@ -59,50 +64,59 @@ slice <- function(x, at, vars, showProgress = TRUE, na.rm = TRUE,
     stop("'x' must be of class ASpaces", call. = FALSE)
   else
     df <- slot(x, "data")
-
+  
   # ----------------------------------------------------------------------------
   # If 'at' is not given, stop the function
   # ----------------------------------------------------------------------------
   if (missing(at))
     stop("'at' must be provided", call. = FALSE)
-    
+  
   # ----------------------------------------------------------------------------
   # If 'vars' are not specified, return all variables in the input data
   # ----------------------------------------------------------------------------
   if (missing(vars))
     vars <- names(slot(df[[1]], "info"))
-
+  
+  # ----------------------------------------------------------------------------
+  # If 'mc' is given, check number of core
+  # core must be one length integer value and cannot over user's core
+  # ----------------------------------------------------------------------------  
+  
+  if (mc){
+    core <- .checkslicemc(core)
+    mccl <- makeCluster(detectCores() - 1)
+    clusterExport(cl = mccl, ".locate")
+  }
+  
   if (showProgress & require(pbapply)){
-
+    
     output <- pblapply(df, FUN = function(z, vars) {
       info <- as.data.frame(z@info, stringsAsFactors = FALSE)
       trip <- .locate(z@trip, info$id, at, na.rm, silent)
       output <- cbind(info[vars], trip)
       return(output)
-    })}
-  else if(mc == TRUE){
-    cl <- makeCluster(8)
-    clusterExport(cl, ".locate")
-    output <- parLapply(cl, X = testdata, fun = function(z, vars){
+    })
+  } else if(mc == TRUE){
+    
+    output <- parLapply(cl = mccl, X = df, fun = function(z, vars){
       info <- as.data.frame(z@info, stringsAsFactors = FALSE)
       trip <- .locate(z@trip, info$id, at, na.rm, silent)
       output <- cbind(info[vars], trip)
       return(output)
-    })}
-  else{
+    })
+    stopCluster(mccl)
+  } else
     output <- lapply(df, FUN = function(z, vars) {
       info <- as.data.frame(z@info, stringsAsFactors = FALSE)
       trip <- .locate(z@trip, info$id, at, na.rm, silent)
       output <- cbind(info[vars], trip)
       return(output)
     })
-}
   output.unlist <- unlist(output)
   output.length <- length(vars) + 4
   output.df <- data.frame(matrix(output.unlist, ncol = output.length, 
                                  byrow = TRUE), 
                           stringsAsFactors = TRUE)
   names(output.df) <- names(output[[1]])
-  
   return(output.df)
 }

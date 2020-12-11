@@ -24,7 +24,17 @@ source("R/subset.R")
 load("examples/sampledata.RData")
 
 ##example of simple slice function
-a <- slice(testASP, 1200, showProgress = F)
+result <- slice(testASP, 1200, showProgress = F)
+
+##example of parallel processing of slice function
+result <- slice(newtestset, 1200, silent = TRUE, mc = TRUE, 
+                showProgress = FALSE, core = 2)
+
+result <- slice(newtestset, 1200, silent = TRUE, mc = TRUE, 
+                showProgress = FALSE, core = 6)
+
+result <- slice(newtestset, 1200, silent = TRUE, mc = TRUE, 
+                showProgress = FALSE, core = 100)
 
 ##example of as.TracksCollection
 testTC <- as.tracksCollection(testASP) ##without any argument
@@ -49,24 +59,4 @@ pointaspaces <- new("ASpaces", data = list(testaspace), sp = testshp)
 as.tracksCollection(pointaspaces, varname = "adress")
 
 
-vars <- names(slot(testdata[[1]], "info"))
-aaaa <- parLapply(cl = makeCluster(8), X = testdata, fun = function(z, vars){
-  info <- as.data.frame(z@info, stringsAsFactors = FALSE)
-  trip <- locate(z@trip, info$id, at, na.rm, silent)
-  output <- cbind(info[vars], trip)
-})
-testdata[[1]]
-
-
-
-
-ww <- function(testdata, at, na.rm = TRUE, silent = TRUE){
-  aa <- makeCluster(8)
-    clusterExport(cl = aa, ".locate")
-aaaa <- parLapply(cl = aa, X = testdata, fun = function(z, vars){
-  info <- as.data.frame(z@info, stringsAsFactors = FALSE)
-  trip <- .locate(z@trip, info$id, at, na.rm, silent)
-  output <- cbind(info[vars], trip)
-})
-}
 
