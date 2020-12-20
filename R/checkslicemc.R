@@ -7,8 +7,11 @@
 # ------------------------------------------------------------------------------
 
 .checkslicemc <- function(core){
-  core <- as.integer(core)
-  if((class(core) != "integer") )
+  
+  if((class(core) != "numeric") )
+    stop("'core' must be integer value of 1 length",
+         call. = FALSE)
+  if((core%%1!=0))
     stop("'core' must be integer value of 1 length",
          call. = FALSE)
   if(!length(core) == 1)
