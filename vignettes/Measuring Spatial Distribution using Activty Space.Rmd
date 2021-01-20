@@ -1,0 +1,363 @@
+---
+title: "Measuring Spatial Distribution using Activty Space"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{"measuring spatial distribution using activty space"}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+## Introduction
+
+The activity space is the concept of a social place that individuals visit on 
+a daily basis, and the concept of an activity space itself can be thought of a 
+lot on a daily basis, but it has not been dealt with largely in the study. 
+However, many studies have recently been conducted in that the analysis based 
+on the activity space can realistically observe the segregation and disconnection 
+experienced by social members in real life compared to the existing 
+residential-centered approach(Wong and Shaw, 2011; Farber et al., 2012; 
+ang et al., 2012; Wang and Li, 2016). However, this activity-space-based 
+research has several problems to be overcome. In order to deal with the activity
+space, it is necessary to deal with data in a more complex form than the 
+existing data, which causes difficulties in analysis and takes a lot of time.
+
+The slice package was developed to make it easier to handle activity space data
+in R in this flow. The slice package can find out what area people are located 
+at a specific time based on people's activity space, based on each travel record,
+and has a function that makes it easier to handle such travel records.
+
+In this Vignette, we will use the 2016 Korea Transport Database of South 
+Korea to deal with how and where people are distributed in each time zone 
+through slice package.
+
+```{r setup, message = FALSE}
+library(devtools)
+load_all()
+```
+
+## Classes
+
+Before actually starting, I will explain the two classes included in the package 
+with data. The slice package has two classes, the names of these two classes are 
+ASpace and ASpaces, respectively. First, let's proceed with the explanation 
+while looking at the data.
+
+```{r}
+data("Krtrdata")
+```
+```{r}
+class(korea2016)
+##ASpaces class
+korea2016@data[[1]]
+korea2016@attr
+##Not run
+#korea2016@sp 
+```
+First is the ASpaces class. The ASpaces class has a total of three slots, 
+each of which is 'data', 'attr', and 'sp'.
+
+* The slot 'data' contains activity space information for us to analyze, 
+and each one is entered into the list inside the data slot.
+
+* The slot 'attr' is the metadata of the ASpaces class, and contains the 
+time when the data was collected or the name of the data.
+
+* Finally, the slot 'sp' contains SpatialPolygon or SpatialPoint that contains the 
+spatial extent of the activity space.
+
+    Note that the space unit or spatial range of the data inside the sp 
+    slot must match the data inside the data slot.
+
+```{r}
+class(korea2016@data[[1]])
+##ASpace class
+korea2016@data[[1]]@info
+korea2016@data[[1]]@trip
+```
+Next is the ASpace class. Unlike the ASpaces class, ASpace has one active space 
+and demographic data, and has a total of two slots. Each slot is Info and Trip.
+
+* The slot 'info' contains demographic and socioeconomic variables
+of the respondent as a list object.
+
+* The slot 'trip' contains information on trips made by the survey respondent.
+
+In other words, if you briefly describe these two classes, 
+you can say that the ASpace class is a class that has data for each person, 
+and ASpaces is a class that has multiple data as its name suggests.
+
+When looking at the data inside ASpace, the data starts with each individual 
+number and has demographic characteristics such as gender and income level in 
+the residential area, and inside the trip, it is possible to check the 
+characteristcs associated with travel.
+
+    Note that we have looked at the data, let's see how we can actually 
+    analyze the activity space based on this class.
+
+## Measuring spatial distribution
+
+First of all, in the simplest way, it will be possible to measure whether the 
+degree of distribution of people can vary by time zone. As the name suggests, 
+the slice function slices consecutive data in time and allows you to see 
+a section of time.
+
+The slice function can be easily used as follows.
+
+* `slice(x, at)`
+
+In this syntax, enter the ASpaces class for x and enter your desired time for at. 
+Like this, if you want to check the population distribution at 2 p.m. of the 
+data you have, the function can be entered as follows.
+
+* `slice(korea2016, 1400)`
+
+Of course, you can simply input this, but it is expected that the operation time 
+will take a long time due to the size of the data, so let's make it possible to 
+perform faster operation by entering an additional statement.
+
+It was adjusted to enable parallelized operation through the mc argument, and 
+the function was controlled to operate in a total of 4 cores through the 'core' 
+argument. The result appears as follows.
+
+```{r}
+library(parallel)
+all1400 <- slice(korea2016, 1400, silent = TRUE, mc = TRUE, core = 4)
+head(all1400)
+nrow(all1400)
+```
+
+When you check the result, you can see that the format has changed compared to 
+the previous one, and also that several variables have been added. In other 
+words, a result in the form of data.frame indicating the purpose of which 
+individuals with demographic characteristics on the left arrived at the location
+by means of transportation for what purpose was derived. And through the last 
+on.move variable, you can also check whether the person is currently moving or 
+is active in the area.
+
+However, since the resulting data frame contains too much data (108022), 
+it is difficult to know which regions are distributed more and which regions 
+are less distributed. Therefore, we will refine the resulting data and find out 
+how much it is distributed by region through the slice2df function.
+
+The simple usage of slice2df function is as follows.
+
+* `slice2df(x, var1)`
+
+In this syntax, the data frame that is the result of slice is input in x, and 
+the location of data.frame is input in var.
+
+```{r}
+head(slice2df(all1400, "location"))
+```
+
+Like this, you can check how many people are active by region at that time. 
+slice2df also uses an additional variable You can check the distribution of the 
+population by region in more detail.
+
+```{r}
+result1 <- slice2df(all1400, "location", "sex")
+head(slice2df(all1400, "location", "sex"))
+```
+
+Of course, you can check the results more easily than before in this way, 
+but the table is still too long to check the results at once.
+It is true that it is still difficult. From now on, we will visualize with the 
+data of sp class inside ASpaces.
+
+## Visualization
+
+The result of slice can be visualized on the premise that the space unit of sp 
+inside ASpaces is the same as the unit of activity space. 
+First, merge the result and sp data for visualization.
+
+```{r}
+korea2016@sp@data <- merge(korea2016@sp@data, 
+                           result1, by.x = "adm_cd", by.y = "Area")  
+head(korea2016@sp@data)
+```
+
+Since the number of population counted by region has been well entered into the 
+spatial data, a simple visualization can now proceed.
+
+The code for visualization is as follows.
+
+```{r, out.width = "70%", fig.align='center'}
+library(RColorBrewer)
+library(classInt)
+## Specify par so that three maps fit on one screen
+par(mar = c(1, 1, 1, 1))
+par(mai=c(1, 0, 1, 0))
+par(mfrow = c(1, 3))
+
+## Visualization for Male distribution
+my_colors <- brewer.pal(5, "Reds")
+class_of_freq <- classIntervals(korea2016@sp@data[, 7], 5, style = "jenks")
+colors <- findColours(class_of_freq, my_colors)
+plot(korea2016@sp, col = colors, main = "Male", border = F)
+
+## Visualization for Female distribution
+my_colors <- brewer.pal(5, "Reds")
+class_of_freq <- classIntervals(korea2016@sp@data[, 8], 5, style = "jenks")
+colors <- findColours(class_of_freq, my_colors)
+plot(korea2016@sp, col = colors, main = "Female", border = F)
+
+## Visualization for total population distribution
+my_colors <- brewer.pal(5, "Reds")
+class_of_freq <- classIntervals(korea2016@sp@data[, 7] + korea2016@sp@data[, 8], 
+                                5, style = "jenks")
+colors <- findColours(class_of_freq, my_colors)
+plot(korea2016@sp, col = colors, main = "Both", border = F)
+```
+
+When checking the visualization results, it was found that there was no 
+significant difference in the distribution between men and women at 2:00 pm.
+Of course, these results may have a large influence on working hours due to the 
+specificity of time. If so, what would be the result of different times?
+
+```{r}
+library(parallel)
+## Set the time to 8:00 am and 20:00 pm
+all800 <- slice(korea2016, 800, silent = TRUE, mc = TRUE, core = 4)
+all2000 <- slice(korea2016, 2000, silent = TRUE, mc = TRUE, core = 4)
+
+## refining results
+result2 <- slice2df(all800, "location", "sex")
+result3 <- slice2df(all2000, "location", "sex")
+
+## merging results to sp slot
+korea2016@sp@data <- merge(korea2016@sp@data, 
+                           result2, by.x = "adm_cd", by.y = "Area")  
+korea2016@sp@data <- merge(korea2016@sp@data, 
+                           result3, by.x = "adm_cd", by.y = "Area") 
+
+head(korea2016@sp@data)
+```
+
+```{r, out.width = "70%", fig.align='center'}
+par(mar = c(1, 1, 1, 1))
+par(mai=c(1, 0, 1, 0))
+par(mfrow = c(1, 3))
+
+## Visualization of 8 AM results
+
+
+my_colors <- brewer.pal(5, "Reds")
+class_of_freq <- classIntervals(korea2016@sp@data[, 9], 
+                                5, style = "jenks")
+colors <- findColours(class_of_freq, my_colors)
+plot(korea2016@sp, col = colors, main = "Male", border = F)
+
+my_colors <- brewer.pal(5, "Reds")
+class_of_freq <- classIntervals(korea2016@sp@data[, 10], 
+                                5, style = "jenks")
+colors <- findColours(class_of_freq, my_colors)
+plot(korea2016@sp, col = colors, main = "Female", border = F)
+
+my_colors <- brewer.pal(5, "Reds")
+class_of_freq <- classIntervals(korea2016@sp@data[, 9] + korea2016@sp@data[, 10], 
+                                5, style = "jenks")
+colors <- findColours(class_of_freq, my_colors)
+plot(korea2016@sp, col = colors, main = "Both", border = F)
+
+```
+```{r, out.width = "70%", , fig.align='center'}
+par(mar = c(1, 1, 1, 1))
+par(mai=c(1, 0, 1, 0))
+par(mfrow = c(1, 3))
+## Visualization of 8 PM results
+my_colors <- brewer.pal(5, "Reds")
+class_of_freq <- classIntervals(korea2016@sp@data[, 11], 
+                                5, style = "jenks")
+colors <- findColours(class_of_freq, my_colors)
+plot(korea2016@sp, col = colors, main = "Male", border = F)
+
+
+my_colors <- brewer.pal(5, "Reds")
+class_of_freq <- classIntervals(korea2016@sp@data[, 12], 
+                                5, style = "jenks")
+colors <- findColours(class_of_freq, my_colors)
+plot(korea2016@sp, col = colors, main = "Female", border = F)
+
+my_colors <- brewer.pal(5, "Reds")
+class_of_freq <- classIntervals(korea2016@sp@data[, 11] + korea2016@sp@data[, 12], 
+                                5, style = "jenks")
+colors <- findColours(class_of_freq, my_colors)
+plot(korea2016@sp, col = colors, main = "Both", border = F)
+
+```
+
+In this way, you can see how it changes over time. This can be confirmed as a 
+result of spatially differentiated residences and jobs in Seoul, Korea. However,
+it was confirmed that the difference between women and men still did not appear 
+noticeably. It can be interpreted that the spatial distribution of men and women 
+is not very different in terms of activity space.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
