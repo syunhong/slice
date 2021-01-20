@@ -1,12 +1,19 @@
 Package: slice
 Version: 0.1-2
-Date: 2020-04-15
+Date: 2021-01-20
 Title: Manipulating Activity Space Data for the Measurement of Segregation
 Author: Seong-Yun Hong [aut, cre], Changlock Choi [ctb]
 Maintainer: Seong-Yun Hong <syhong@khu.ac.kr>
 Depends: R (>= 3.4.0), methods, stats, sp
 Imports: splancs
-Suggests: spdep, spgrass6, rgdal
+Suggests: 
+    spdep,
+    spgrass6,
+    rgdal,
+    parallel,
+    pbapply,
+    knitr,
+    rmarkdown
 Description: Measuring spatial segregation. The methods implemented in this 
         package include White's P index (1983) <doi:10.1086/227768>, 
         Morrill's D(adj) (1991), Wong's D(w) and D(s) (1993) 
@@ -19,3 +26,20 @@ NeedsCompilation: yes
 Packaged: 2019-12-18 05:31:01 UTC; Seong-Yun
 Repository: CRAN
 Date/Publication: 2019-12-18 15:20:02 UTC
+RoxygenNote: 7.1.1
+Collate: 
+    'ASpace-class.R'
+    'ASpaces-class.R'
+    'ASpaces-methods.R'
+    'as.Tracks.R'
+    'as.data.frame.Aspaces.R'
+    'as.tracksCollection.R'
+    'checkslicemc.R'
+    'data.R'
+    'get_xy.R'
+    'locate.R'
+    'select.R'
+    'slice.R'
+    'slice2df.R'
+    'subset.R'
+VignetteBuilder: knitr
