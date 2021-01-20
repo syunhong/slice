@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------------
 # .checkslicemc
-##
+#
 # an internal function written by:
 #
 # Changlock Choi (hihi7100@khu.ac.kr)

@@ -1,35 +1,43 @@
-# ------------------------------------------------------------------------------
-# as.Tracks()
-#
-# Coerces the Input Object of Class ASpace to a Tracks Object
-#
-# Description:
-# 
-# 
-# 
-# Usage:
-#
-#   as.Tracks(x, sp, varname)
-#
-# Arguments:
-# 
-#   x             an object of class ASpace
-#
-#   sp            an object of class sp used in x
-#
-#   varname       name of the column in sp's data.frame which can be matched 
+#' Convert Objects to Class Tracks
+#' @export
+#' @description Coerces the Input Object of Class ASpaces to a Tracks Object
+#' @usage as.Tracks(x, sp, varname)
+#'        
+#' @param x an object of class ASpace
+#' @param sp an object of class sp used in x
+#' @param varname name of the column in sp's data.frame which can be matched 
 #                 with o_zone and d_zone in ASpaces
-#
-# Details:
-# 
-# Value:
-#
-#   An object of class Tracks
-#
-# Author(s):
-#
-#   Seong-Yun Hong (syhong@khu.ac.kr)
-# ------------------------------------------------------------------------------
+#' @return An object of class Tracks
+#' @details Function \code{as.Track} accepts converts \code{ASpace} objects 
+#' to an onject of class \code{Tracks}. When converting a single \code{ASpace} 
+#' object, unlike the \code{ASpaces} class, there is basically no sp given, so 
+#' it is essential to enter the sp argument. 
+#' 
+#' Also, since the input of the time is fixed to the \code{POSIXct} or 
+#' \code{POSIXt} class in the \code{Tracks} class, attention is needed that the 
+#' existing time format is changed to the type of the corresponding class.
+#' 
+#' @seealso \code{\link{as.Tracks}}
+#' @author Seong-Yun Hong (syhong@khu.ac.kr)
+#' @examples 
+#' ## Not run:
+#' # creates sample info data
+#' testinfo <- list()
+#'
+#' # creates sample trip data
+#' testtrip <- data.frame(tr_id = 1:10, tr_seq = rep(NA, 10), purpose = rep(NA, 10),
+#'                       mode = rep(NA, 10), o_type = rep(NA, 10), 
+#'                       o_time = c(200,300,400,500,600,700,800,900,1000,1100),
+#'                       o_zone = c(1,2,3,4,5,6,5,4,3,2),
+#'                       d_type = rep(NA, 10),
+#'                       d_time = c(300,400,500,600,700,800,900,1000,1100,1200),
+#'                       d_zone = c(2,3,4,5,6,5,4,3,2,1))
+#'                     
+#'#constructs an object of class 'ASpace'
+#' testASpace <- new("ASpace", info = list(id = 1), trip = testtrip)
+#' 
+#' testTracks <- as.tracksCollection(testASpace, varname = "adm_dr_cd")
+
 as.Tracks <- function(x, sp, varname) {
   
   # ----------------------------------------------------------------------------

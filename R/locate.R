@@ -1,15 +1,35 @@
-# ------------------------------------------------------------------------------
-# .locate()
-#
-# An internal function written by:
-#
-#   Seong-Yun Hong (syhong@khu.ac.kr)
-# ------------------------------------------------------------------------------
+#' Find Individual's Location by Time
+#' @export
+#' @description Find where an individual is located at a specific time during continuous trip
+#' @usage .locate(trip, id, at, na.rm, silent)
+#' @param trip an object of data.frame containg person's continuous trip.
+#' @param id a vector of length 1, indicating person's ID
+#' @param at a numeric vector of length 1, specifying the time at which 
+#'           the location of an individual needs to be extracted 
+#' @param silent logical. If TRUE, if any trip records have NAs in the time
+#'                 fields, a warning message will be provided.
+#' 
+#' @return a single row data.frame containing correspond with 'at'
+#' @seealso \code{\link{slice}}
+#' @author Seong-Yun Hong (syhong@khu.ac.kr)
+#' @examples 
+#'#creates sample trip data
+#'testtrip <- data.frame(tr_id = 1:10, tr_seq = rep(NA, 10), purpose = rep(NA, 10),
+#'                       mode = rep(NA, 10), o_type = rep(NA, 10), 
+#'                     o_time = c(200,300,400,500,600,700,800,900,1000,1100),
+#'                     o_zone = c(1,2,3,4,5,6,5,4,3,2),
+#'                     d_type = rep(NA, 10),
+#'                     d_time = c(300,400,500,600,700,800,900,1000,1100,1200),
+#'                     d_zone = c(2,3,4,5,6,5,4,3,2,1))
+#'                     
+#'#Find where at 800 via .locate
+#'.locate(testtrip, 1, 600, na.rm = TRUE, silent = FALSE)
+
 .locate <- function(trip, id, at, na.rm, silent) {
 
   n <- nrow(trip)
-  begTime <- trip$o_time
-  endTime <- trip$d_time
+  begTime <- as.numeric(trip$o_time)
+  endTime <- as.numeric(trip$d_time)
   NAs <- (is.na(begTime) | is.na(endTime))
   
   # ----------------------------------------------------------------------------
@@ -18,8 +38,8 @@
   if (any(NAs) & na.rm) {
     trip <- trip[-which(NAs),]
     n <- nrow(trip)
-    begTime <- trip$o_time
-    endTime <- trip$d_time
+    begTime <- as.numeric(trip$o_time)
+    endTime <- as.numeric(trip$d_time)
     
     if (!silent)
       warning("[", id, "] ", sum(NAs), " rows removed due to NA", 
@@ -45,9 +65,9 @@
     # --------------------------------------------------------------------------
     # Validate the user input arguments
     # --------------------------------------------------------------------------
-    if (any(!is.numeric(trip$o_time)))
+    if (any(!is.numeric(as.numeric(trip$d_time))))
       stop("invalid 'o_time' values in the object 'trip'", call. = FALSE)
-    else if (any(!is.numeric(trip$d_time)))
+    else if (any(!is.numeric(as.numeric(trip$d_time))))
       stop("invalid 'd_time' values in the object 'trip'", call. = FALSE)
 
     # --------------------------------------------------------------------------

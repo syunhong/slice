@@ -1,3 +1,8 @@
+#' generic method for class ASpaces
+#' @export
+#' @docType methods
+#' @rdname ASpaces-methods
+
 # ------------------------------------------------------------------------------
 # Methods for class "ASpaces"
 #
@@ -15,14 +20,16 @@ setMethod("[[",
           definition = function(x, i) { 
             x@data[[i]] 
           })
-
+#' generic method for class ASpaces
+#' @export
 setMethod("[[<-", 
           signature = c(x = "ASpaces"),
           definition = function(x, i, value) { 
             x@data[[i]] <- value
             x
           })
-
+#' generic method for class ASpaces
+#' @export
 setMethod("update", 
           signature = "ASpaces",
           definition = function(object, data, attr, sp) {
@@ -42,7 +49,8 @@ setMethod("update",
             return(object)
           }
           )
-
+#' generic method for class ASpaces
+#' @export
 setMethod("summary", 
           signature = "ASpaces", 
           definition = function(object) {
@@ -66,7 +74,8 @@ setMethod("summary",
             cat("Slot \"sp\":\n")
             cat(class(object@sp)[1], "\n")
           })
-
+#' generic method for class ASpaces
+#' @export
 setMethod("show", 
           signature = "ASpaces", 
           definition = function(object) {
