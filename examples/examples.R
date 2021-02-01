@@ -37,7 +37,7 @@ result <- slice(newtestset, 1200, silent = TRUE, mc = TRUE,
                 showProgress = FALSE, core = 100)
 
 ##example of as.TracksCollection
-testTC <- as.tracksCollection(testASP) ##without any argument
+testTC <- as.tracksCollection(slicedata) ##without any argument
 
 testTC <- as.tracksCollection(testASP, varname = "adm_dr_cd") ##without sp
 
