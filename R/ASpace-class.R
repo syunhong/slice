@@ -1,6 +1,5 @@
 #' Class ASpace
 #' @exportClass ASpaces
-#' @docType class
 #' @include ASpace-class.R
 #' @description A S4 class for storing activity-space data; Contains information of one individual person
 #' @slot info an object of list. representing the demographic characteristic of individual.
